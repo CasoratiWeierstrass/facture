@@ -1,0 +1,52 @@
+
+SCRIPT.SH:
+	Automatisation de creation de factures. Il y a une facture_type.ods qui sert de paterne. On modifiera les inforamtions et on créera
+	une facture.pdf prete a l'envoie.
+	le script interagit avec Le montant de la formation, le numero de la formation, et les Dates.
+	Pour les infos personnelles, il est plus facile de modifier 'facture_type.ods'. Pour le nom, le siret et votre adresse.
+	Il est imperatif d'avoir "facture_type.ods" dans le meme dossier que "script.sh".
+
+	A la creation d'une facture elle apparait sous: "FactureX"
+	ou X est le nombre de factures dans le dossier actuel, PAS le numero de la facture. Il faudra le modifier sois-même.
+
+	A la création de la facture, on demandera a l'utilisateur si il veut directement l'envoyer par mail.
+
+[ COTE UTILISATEUR ]
+
+	L'utilisateur peut créer des factures.pdf a partir d'un script bash et d'une facture.ods.
+
+
+SYNTAX:
+	bash script.sh [ OPTIONS ]
+
+	[ numeroFacture MontantJournalier Datedebutdelaformation NbDejours ]
+
+
+
+NUMEROFACTURE:
+	000-999
+
+MONTANTJOURNALIER:
+	000-999
+
+DATE:
+	Format anglais: $Y$m$d
+	12 novembre 2018 ==> 20181112
+
+NOMBREDEJOURS:
+	Nombre de jours de la formation: Important pour le montant final de la formation
+	Et pour la date ("du $3 au (($3+$4))").
+
+
+EXAMPLE:
+
+	bash script.sh 008 150 20181112 5
+
+
+
+
+[ A suivre ]
+
+-Proposer un outil de supervision (création, modification, supression) et d'envoi des factures en ligne de commande.
+-gerer un annuaire de mails
+-proteger les factures
