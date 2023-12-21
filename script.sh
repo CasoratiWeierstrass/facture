@@ -64,6 +64,12 @@ cd unziped_facture
 
 
 
+### Modification du numéro de facture
+
+sed -i -E "s/insérer numéro facture/$num_fact/" content.xml
+
+
+
 ### Modification du forfait journalier:
 
 sed -i -E "s/insérer montant journalier/$mont_jour/" content.xml
@@ -85,16 +91,27 @@ months=(Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Nov
 
 ac=$( date +%Y ) ; mc=$( date +%m ) ; jc=$( date +%d )
 
-sed -i -E "s/August 13, 2019/$js ${months[$((mc-1))]} $ac/" content.xml
+sed -i -E "s/date création facture/$js ${months[$((mc-1))]} $ac/" content.xml
 
 
+# date de début et de fin 
 
-annee_deb=$(echo $date_deb_form | awk -F"-" '{print $1}'
-mois_deb=$(echo $date_deb_form | awk -F"-" '{print $2}'
-jour_deb=$(echo $date_deb_form | awk -F"-" '{print $3}'
+annee_deb=$(echo $date_deb_form | awk -F"-" '{print $1}')
+mois_deb=$(echo $date_deb_form | awk -F"-" '{print $2}')
+jour_deb=$(echo $date_deb_form | awk -F"-" '{print $3}')
+
+annee_fin=$(date --date=$date_deb_form"+$nb_jour days" +%Y)  # attention avec cette méthode on
+mois_fin=$(date --date=$date_deb_form"+$nb_jour days" +%m)   # compte aussi comme jours de
+jour_fin=$(date --date=$date_deb_form"+$nb_jour days" +%d)   # travail le samedi et dimanche
+
+sed -i -E "s/\[date de début\]/$jour_deb ${months[$((mois_deb-1))]} $annee_deb/" content.xml
+sed -i -E "s/\[date de fin\]/$jour_fin ${months[$((mois_fin-1))]} $annee_fin/" content.xml
 
 
+### on renomme le fichier pdf créé
 
+nbf=$( ls factures | wc -w )   # le nb de factures présentes dans le dossier 'factures'
 
+mv factures/reziped_facture.pdf factures/Factures$nbf
 
 
