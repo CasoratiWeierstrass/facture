@@ -123,7 +123,7 @@ zip -r ../reziped_facture . &>/dev/null
 
 ### on génère le pdf à partir du fichier au contenu modifié
 
-soffice --headless --convert-to pdf:calc_pdf_Export --outdir ../factures ../reziped_facture.zip
+soffice --headless --convert-to pdf:calc_pdf_Export --outdir ../factures ../reziped_facture.zip &>/dev/null
 cd ..
 
 
@@ -141,4 +141,27 @@ nbf=$( ls factures | wc -w )   # le nb de factures présentes dans le dossier 'f
 mv factures/reziped_facture.pdf factures/Facture$nbf
 
 
+
 echo -e "[DONE]\n"
+
+
+
+### Envoi automatique par mail de la facture
+
+send=non
+
+read -p "Voulez-vous envoyer cette facture par mail directement ? (o/N) " send
+
+if [[ $send =~ (OUI|Oui|oui|o|O|YES|Yes|yes|y|Y) ]]
+then
+	read -p "Entrez l'adresse mail où envoyer la facture: " adr_mail
+	if ! [[ $adr_mail =~  [^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+ ]] # la regex de ihateregex.io sur les adresses mail
+	then
+		echo "adresse fournie invalide"
+		exit 1
+	fi
+
+else
+	echo -e "Pas d'envoi automatique\n"
+fi
+
