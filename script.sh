@@ -24,7 +24,7 @@ do
 	then
 		num_fact=${BASH_REMATCH[1]}
 	
-	elif [[ $arg =~ ^-mj=([0-9]{1,3})$ ]]
+	elif [[ $arg =~ ^-mj=([0-9]{3})$ ]]
 	then
 		mont_jour=${BASH_REMATCH[1]}
 	
@@ -55,6 +55,13 @@ fi
 
 
 echo "Génération de votre facture en cours . . ."
+
+
+### on crée le dossier 'factures' si besoin
+
+! [ -d factures ] && mkdir factures
+
+
 
 ### unzip du fichier facture type et placement à l'intérieur
 
@@ -148,14 +155,14 @@ echo -e "[DONE]\n"
 
 ### Envoi automatique par mail de la facture
 
-send=non
+send=false
 
 read -p "Voulez-vous envoyer cette facture par mail directement ? (o/N) " send
 
 if [[ $send =~ (OUI|Oui|oui|o|O|YES|Yes|yes|y|Y) ]]
 then
-	read -p "Entrez l'adresse mail où envoyer la facture: " adr_mail
-	if ! [[ $adr_mail =~  [^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+ ]] # la regex de ihateregex.io sur les adresses mail
+	read -p "Entrez l'adrerse mail où envoyer la facture: " adr_mail
+	if ! [[ $adr_mail =~ ^[A-z0-9\_\.]+\@[A-z]+\.\[a-z]+$ ]] 
 	then
 		echo "adresse fournie invalide"
 		exit 1
@@ -164,4 +171,5 @@ then
 else
 	echo -e "Pas d'envoi automatique\n"
 fi
+
 
