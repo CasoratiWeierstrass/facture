@@ -16,7 +16,7 @@ do
 		-> le numéro de la facture: '-nf=[num_fact]'
 		-> le montant journalier de la formation en euros: '-mj=[mont_jour]'
 		-> la date de début de la formation: '-ddf=[date_deb_form]'
-		   (le format doit être donné au format anglais année-mois-jour : 2000-01-01)
+		   (l'argument doit être donné au format anglais année-mois-jour : 2000-01-01)
 		-> le nombre de jour que dure la formation: '-nj=[nb_jour]'
 		"""
 		exit 2
@@ -24,7 +24,7 @@ do
 	then
 		num_fact=${BASH_REMATCH[1]}
 	
-	elif [[ $arg =~ ^-mj=([0-9]{3})$ ]]
+	elif [[ $arg =~ ^-mj=([0-9]{1,3})$ ]]
 	then
 		mont_jour=${BASH_REMATCH[1]}
 	
@@ -42,19 +42,19 @@ do
 	fi
 done
 
-# echo """année: $(echo $date_deb_form | awk -F"-" '{print $1}')
-# mois: $(echo $date_deb_form | awk -F"-" '{print $2}')
-# jour: $(echo $date_deb_form | awk -F"-" '{print $3}')
-# """
+
 
 ### on s'assure que tous les paramètres nécessaires ont bien été fournis
 
-# if [ -e $num_fact ] || [ -e $mont_jour ] || [ -e $date_deb_form ] || [ -e nb_jour ]
-# then
-# 	echo "Il manque au moins un argument pour exécuter le script (consultez l'aide: --help)"
-# 	exit 1
-# fi
+if [ -e $num_fact ] || [ -e $mont_jour ] || [ -e $date_deb_form ] || [ -e nb_jour ]
+then
+	echo "Il manque au moins un argument pour exécuter le script (consultez l'aide: --help)"
+	exit 1
+fi
 
+
+
+echo "Génération de votre facture en cours . . ."
 
 ### unzip du fichier facture type et placement à l'intérieur
 
@@ -83,15 +83,21 @@ sed -i -E "s/insérer montant total/$mont_tot/g" content.xml
 
 
 
+### Modification du nombre de jours de la formation
+
+sed -i -E "s/\[nombre de jours\]/$nb_jour/" content.xml
+
+
+
 ### Modification des dates
 
 months=(Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Novembre Décembre)
 
 # date de création de la facture
 
-ac=$( date +%Y ) ; mc=$( date +%m ) ; jc=$( date +%d )
+ac=$( date +%Y ) ; mc=$( date +%m ) ; jc=$( date +%d )   # l'année, le mois et le jour courant (pour établir la facture au jour où elle est générée)
 
-sed -i -E "s/date création facture/$js ${months[$((mc-1))]} $ac/" content.xml
+sed -i -E "s/date création facture/$jc ${months[$((mc-1))]} $ac/" content.xml
 
 
 # date de début et de fin 
@@ -108,10 +114,31 @@ sed -i -E "s/\[date de début\]/$jour_deb ${months[$((mois_deb-1))]} $annee_deb/
 sed -i -E "s/\[date de fin\]/$jour_fin ${months[$((mois_fin-1))]} $annee_fin/" content.xml
 
 
+
+### on rezip le fichier dézipé
+
+zip -r ../reziped_facture . &>/dev/null
+
+
+
+### on génère le pdf à partir du fichier au contenu modifié
+
+soffice --headless --convert-to pdf:calc_pdf_Export --outdir ../factures ../reziped_facture.zip
+cd ..
+
+
+
+### on nettoie un peu ce qu'on a créé
+
+rm -r unziped_facture reziped_facture.zip
+
+
+
 ### on renomme le fichier pdf créé
 
-nbf=$( ls factures | wc -w )   # le nb de factures présentes dans le dossier 'factures'
+nbf=$( ls factures | wc -w )   # le nb de factures présentes dans le dossier 'factures' (en comptant celle qui vient d'être créée)
 
-mv factures/reziped_facture.pdf factures/Factures$nbf
+mv factures/reziped_facture.pdf factures/Facture$nbf
 
 
+echo -e "[DONE]\n"
