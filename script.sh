@@ -18,13 +18,15 @@ do
 		-> la date de début de la formation: '-ddf=[date_deb_form]'
 		   (l'argument doit être donné au format anglais année-mois-jour : 2000-01-01)
 		-> le nombre de jour que dure la formation: '-nj=[nb_jour]'
+
+		Pour l'envoi automatique par mail, suivez simplement les quelques instructions en ligne de commande.
 		"""
 		exit 2
-	elif [[ $arg =~ ^-nf=([0-9]+)$ ]]
+	elif [[ $arg =~ ^-nf=([0-9]{3})$ ]]
 	then
 		num_fact=${BASH_REMATCH[1]}
 	
-	elif [[ $arg =~ ^-mj=([0-9]{3})$ ]]
+	elif [[ $arg =~ ^-mj=([0-9]{1,3})$ ]]
 	then
 		mont_jour=${BASH_REMATCH[1]}
 	
@@ -117,8 +119,8 @@ annee_fin=$(date --date=$date_deb_form"+$nb_jour days" +%Y)  # attention avec ce
 mois_fin=$(date --date=$date_deb_form"+$nb_jour days" +%m)   # compte aussi comme jours de
 jour_fin=$(date --date=$date_deb_form"+$nb_jour days" +%d)   # travail le samedi et dimanche
 
-sed -i -E "s/\[date de début\]/$jour_deb ${months[$((mois_deb-1))]} $annee_deb/" content.xml
-sed -i -E "s/\[date de fin\]/$jour_fin ${months[$((mois_fin-1))]} $annee_fin/" content.xml
+sed -i -E "s/\[date de début\]/$jour_deb ${months[$((10#$(echo $mois_deb)-1))]} $annee_deb/" content.xml
+sed -i -E "s/\[date de fin\]/$jour_fin ${months[$((10#$(echo $mois_fin)-1))]} $annee_fin/" content.xml
 
 
 
@@ -161,15 +163,23 @@ read -p "Voulez-vous envoyer cette facture par mail directement ? (o/N) " send
 
 if [[ $send =~ (OUI|Oui|oui|o|O|YES|Yes|yes|y|Y) ]]
 then
-	read -p "Entrez l'adrerse mail où envoyer la facture: " adr_mail
-	if ! [[ $adr_mail =~ ^[A-z0-9\_\.]+\@[A-z]+\.\[a-z]+$ ]] 
+	read -p "Entrez l'adresse mail où envoyer la facture: " adr_mail
+	if ! [[ $adr_mail =~ ^[A-z0-9\_\.]+\@[A-z]+\.[a-z]+$ ]] 
 	then
 		echo "adresse fournie invalide"
 		exit 1
+	
 	fi
 
 else
 	echo -e "Pas d'envoi automatique\n"
+	exit 0
 fi
+
+echo "Envoi en cours . . ."
+
+cat corps_de_mail | mail -s "$(cat objet_de_mail)" -A default -a factures/Facture$nbf $adr_mail &> /dev/null
+
+echo "[DONE]"
 
 
