@@ -12,14 +12,14 @@ do
 	if [[ $arg =~ ^--help$ ]]
 	then
 		echo """Script pour automatiser la création de facture
-		4 arguments sont attendus:
-		-> le numéro de la facture: '-nf=[num_fact]'
-		-> le montant journalier de la formation en euros: '-mj=[mont_jour]'
-		-> la date de début de la formation: '-ddf=[date_deb_form]'
-		   (l'argument doit être donné au format anglais année-mois-jour : 2000-01-01)
-		-> le nombre de jour que dure la formation: '-nj=[nb_jour]'
+4 arguments sont attendus:
+-> le numéro de la facture: 					'-nf=[num_fact]'
+-> le montant journalier de la formation en euros: 		'-mj=[mont_jour]'
+-> la date de début de la formation: 				'-ddf=[date_deb_form]'
+   (argument à donner au format année-mois-jour: 2000-01-31)
+-> le nombre de jour que dure la formation: 			'-nj=[nb_jour]'
 
-		Pour l'envoi automatique par mail, suivez simplement les quelques instructions en ligne de commande.
+Pour l'envoi automatique par mail, vous devez avoir configuré votre serveur SMTP/MIME (package s-nail). suivez ensuite simplement les quelques instructions en ligne de commande.
 		"""
 		exit 2
 	elif [[ $arg =~ ^-nf=([0-9]{3})$ ]]
@@ -48,7 +48,7 @@ done
 
 ### on s'assure que tous les paramètres nécessaires ont bien été fournis
 
-if [ -e $num_fact ] || [ -e $mont_jour ] || [ -e $date_deb_form ] || [ -e nb_jour ]
+if [ -e $num_fact ] || [ -e $mont_jour ] || [ -e $date_deb_form ] || [ -e $nb_jour ]
 then
 	echo "Il manque au moins un argument pour exécuter le script (consultez l'aide: --help)"
 	exit 1
